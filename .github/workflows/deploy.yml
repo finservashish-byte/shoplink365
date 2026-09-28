@@ -4,6 +4,8 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch:
+  repository_dispatch:
+    types: [sanity-publish]
 
 permissions:
   contents: read
@@ -25,8 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build static export
-        env:
-          PRODUCTS_SHEET_URL: ${{ secrets.PRODUCTS_SHEET_URL }}
         run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
