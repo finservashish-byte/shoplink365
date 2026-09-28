@@ -7,13 +7,17 @@ import { getCategories, getCategoryById, getProductsByCategory } from "@/lib/san
 
 export const dynamic = "force-static";
 
+const EMPTY_PLACEHOLDER = "__no-categories-yet__";
+
 export async function generateStaticParams() {
   const categories = await getCategories();
+  if (categories.length === 0) return [{ id: EMPTY_PLACEHOLDER }];
   return categories.map((c) => ({ id: c._id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
+  if (id === EMPTY_PLACEHOLDER) return { title: "Category not found — ShopLink365" };
   const category = await getCategoryById(id);
   if (!category) return { title: "Category not found — ShopLink365" };
   return {
@@ -24,6 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (id === EMPTY_PLACEHOLDER) notFound();
+
   const category = await getCategoryById(id);
   if (!category) notFound();
   const products = await getProductsByCategory(id);
