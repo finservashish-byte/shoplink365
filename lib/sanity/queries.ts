@@ -31,9 +31,11 @@ export type Product = {
   _id: string;
   nameEn: string;
   slug: { current: string };
-  category: { name: string; icon: string };
+  category: { _id: string; name: string; icon: string };
   tagline?: string;
   rating?: number;
+  pros?: string[];
+  cons?: string[];
   images?: any[];
   offers: Offer[];
   saves?: number;
@@ -136,3 +138,47 @@ export const getGuides = () =>
     }`,
     []
   );
+
+// ---- Used for generateStaticParams + individual detail pages (static export needs these at build time) ----
+
+export const getAllProducts = () =>
+  safeFetch<Product[]>(
+    `*[_type == "product" && contentStatus == "published"]{
+      _id, nameEn, slug, rating, saves, trending, stamp, tagline, pros, cons,
+      category->{_id, name, icon},
+      images,
+      offers[]{
+        _key, price, wasPrice, affiliateLink, inStock, dealType,
+        platform->{name, color}
+      }
+    }`,
+    []
+  );
+
+export const getProductBySlug = async (slug: string): Promise<Product | null> => {
+  const all = await getAllProducts();
+  return all.find((p) => p.slug.current === slug) ?? null;
+};
+
+export const getAllGuides = () =>
+  safeFetch<BlogPost[]>(
+    `*[_type == "blogPost" && status == "published"] | order(publishDate desc){
+      _id, title, slug, postType, excerpt
+    }`,
+    []
+  );
+
+export const getGuideBySlug = async (slug: string): Promise<BlogPost | null> => {
+  const all = await getAllGuides();
+  return all.find((g) => g.slug.current === slug) ?? null;
+};
+
+export const getCategoryById = async (id: string): Promise<Category | null> => {
+  const all = await getCategories();
+  return all.find((c) => c._id === id) ?? null;
+};
+
+export const getProductsByCategory = async (categoryId: string): Promise<Product[]> => {
+  const all = await getAllProducts();
+  return all.filter((p) => p.category?._id === categoryId);
+};
