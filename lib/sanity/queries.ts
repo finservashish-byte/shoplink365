@@ -98,7 +98,7 @@ export const getCategories = () =>
 
 export const getTrendingProducts = () =>
   safeFetch<Product[]>(
-    `*[_type == "product" && contentStatus == "published"] | order(trending desc, _createdAt desc)[0...12]{
+    `*[_type == "product" && lower(contentStatus) == "published"] | order(trending desc, _createdAt desc)[0...12]{
       _id, nameEn, slug, rating, saves, trending, stamp,
       category->{name, icon},
       images,
@@ -143,7 +143,7 @@ export const getGuides = () =>
 
 export const getAllProducts = () =>
   safeFetch<Product[]>(
-    `*[_type == "product" && contentStatus == "published"]{
+    `*[_type == "product" && lower(contentStatus) == "published"]{
       _id, nameEn, slug, rating, saves, trending, stamp, tagline, pros, cons,
       category->{_id, name, icon},
       images,
