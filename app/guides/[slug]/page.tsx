@@ -6,13 +6,17 @@ import { getAllGuides, getGuideBySlug } from "@/lib/sanity/queries";
 
 export const dynamic = "force-static";
 
+const EMPTY_PLACEHOLDER = "__no-guides-yet__";
+
 export async function generateStaticParams() {
   const guides = await getAllGuides();
+  if (guides.length === 0) return [{ slug: EMPTY_PLACEHOLDER }];
   return guides.map((g) => ({ slug: g.slug.current }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === EMPTY_PLACEHOLDER) return { title: "Guides coming soon — ShopLink365" };
   const guide = await getGuideBySlug(slug);
   if (!guide) return { title: "Guide not found — ShopLink365" };
   return {
@@ -23,6 +27,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function GuideDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
+  if (slug === EMPTY_PLACEHOLDER) {
+    return (
+      <>
+        <Header />
+        <div className="section-block">
+          <div className="no-match-msg">
+            <div className="no-match-icon">📖</div>
+            <p>No guides published yet — check back soon.</p>
+          </div>
+        </div>
+        <BottomNav />
+      </>
+    );
+  }
+
   const guide = await getGuideBySlug(slug);
   if (!guide) notFound();
 
