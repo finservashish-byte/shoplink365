@@ -1,4 +1,3 @@
-=== ProductDetailClient.tsx ===
 "use client";
 
 import { useEffect, useState } from "react";
@@ -99,4 +98,16 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             {product.cons && product.cons.length > 0 && (
               <div>
                 <h3 className="detail-section-title">Cons</h3>
-                <ul className="detai
+                <ul className="detail-list detail-list-cons">
+                  {product.cons.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
