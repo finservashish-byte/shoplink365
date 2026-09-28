@@ -7,13 +7,17 @@ import { getAllProducts, getProductBySlug } from "@/lib/sanity/queries";
 
 export const dynamic = "force-static";
 
+const EMPTY_PLACEHOLDER = "__no-products-yet__";
+
 export async function generateStaticParams() {
   const products = await getAllProducts();
+  if (products.length === 0) return [{ slug: EMPTY_PLACEHOLDER }];
   return products.map((p) => ({ slug: p.slug.current }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === EMPTY_PLACEHOLDER) return { title: "Product not found — ShopLink365" };
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product not found — ShopLink365" };
   const offer = product.offers?.[0];
@@ -29,6 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (slug === EMPTY_PLACEHOLDER) notFound();
+
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
