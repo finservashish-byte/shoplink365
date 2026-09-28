@@ -1,7 +1,9 @@
+=== ProductDetailClient.tsx ===
 "use client";
 
 import { useEffect, useState } from "react";
 import type { Product } from "@/lib/sanity/queries";
+import { urlFor } from "@/lib/sanity/client";
 
 function discountPercent(price: number, wasPrice?: number) {
   if (!wasPrice || wasPrice <= price) return null;
@@ -29,9 +31,19 @@ export default function ProductDetailClient({ product }: { product: Product }) {
     window.open(`https://wa.me/?text=${text}`, "_blank");
   }
 
+  const hasImage = product.images && product.images.length > 0;
+  const imageUrl = hasImage ? urlFor(product.images![0]).width(800).height(600).url() : null;
+
   return (
     <div className="detail-page">
-      <div className="detail-photo g1">
+      <div
+        className={imageUrl ? "detail-photo" : "detail-photo g1"}
+        style={
+          imageUrl
+            ? { backgroundImage: `url(${imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : undefined
+        }
+      >
         <button className={`wishlist-btn detail-wishlist${wishlisted ? " active" : ""}`} onClick={toggleWishlist}>
           {wishlisted ? "♥" : "♡"}
         </button>
@@ -87,16 +99,4 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             {product.cons && product.cons.length > 0 && (
               <div>
                 <h3 className="detail-section-title">Cons</h3>
-                <ul className="detail-list detail-list-cons">
-                  {product.cons.map((c, i) => (
-                    <li key={i}>{c}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        ) : null}
-      </div>
-    </div>
-  );
-}
+                <ul className="detai
