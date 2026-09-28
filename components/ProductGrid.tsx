@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Product } from "@/lib/sanity/queries";
+import { urlFor } from "@/lib/sanity/client";
 
 const GRADIENTS = [
   "linear-gradient(155deg,#FFE0B2,#FFB74D)",
@@ -149,9 +150,18 @@ export default function ProductGrid({ products }: { products: Product[] }) {
         {filtered.map((product, i) => {
           const offer = product.offers?.[0];
           const discount = offer ? discountPercent(offer.price, offer.wasPrice) : null;
+          const hasImage = product.images && product.images.length > 0;
+          const imageUrl = hasImage ? urlFor(product.images![0]).width(400).height(400).url() : null;
           return (
             <a key={product._id} className="pcard" href={`/reviews/${product.slug.current}`}>
-              <div className="photo" style={{ background: GRADIENTS[i % GRADIENTS.length] }}>
+              <div
+                className="photo"
+                style={
+                  imageUrl
+                    ? { backgroundImage: `url(${imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+                    : { background: GRADIENTS[i % GRADIENTS.length] }
+                }
+              >
                 {offer?.platform && (
                   <span
                     className="platform-tag"
